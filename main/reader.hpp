@@ -4,6 +4,10 @@
 #include "driver/mcpwm_cap.h"
 #include "driver/gpio.h"
 
+#define MAX_PW  160000
+#define MIN_PW  80000
+
+
 class reader{
 
 public:
@@ -12,6 +16,8 @@ public:
 
 
     reader(int c1_GPIO, int c2_GPIO, int c3_GPIO);
+
+    float getData(int channel=0);
 
 private:
 
@@ -29,6 +35,7 @@ private:
         reader* rd = nullptr;
     } markers[3];
     
+
 public:
     static bool isr_callback(mcpwm_cap_channel_handle_t cap_chan, const mcpwm_capture_event_data_t *edata, void *user_data);
 };

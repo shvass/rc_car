@@ -30,6 +30,10 @@ bool reader::isr_callback(mcpwm_cap_channel_handle_t cap_chan, const mcpwm_captu
 }
 
 
+float reader::getData(int channel){
+    uint32_t pw = chan[channel];
+    return  (float)(pw - MIN_PW) / ( MAX_PW - MIN_PW);
+};
 
 mcpwm_capture_timer_config_t cap_conf = {
     .group_id = GRP_ID,
@@ -54,16 +58,28 @@ reader::reader(int c1_GPIO, int c2_GPIO, int c3_GPIO){
 
 
     mcpwm_new_capture_timer(&cap_conf, &cap_timer);
-    
+
     cap_ch_conf.gpio_num = c1_GPIO;
     mcpwm_new_capture_channel(cap_timer, &cap_ch_conf, &cap_channels[0]);
 
+    cap_ch_conf.gpio_num = c2_GPIO;
+    mcpwm_new_capture_channel(cap_timer, &cap_ch_conf, &cap_channels[1]);
+
+    cap_ch_conf.gpio_num = c3_GPIO;
+    mcpwm_new_capture_channel(cap_timer, &cap_ch_conf, &cap_channels[2]);
+
 
     mcpwm_capture_channel_register_event_callbacks(cap_channels[0], &cbs, &markers[0]);
+    mcpwm_capture_channel_register_event_callbacks(cap_channels[1], &cbs, &markers[1]);
+    mcpwm_capture_channel_register_event_callbacks(cap_channels[2], &cbs, &markers[2]);
+
+
     mcpwm_capture_channel_enable(cap_channels[0]);
+    mcpwm_capture_channel_enable(cap_channels[1]);
+    mcpwm_capture_channel_enable(cap_channels[2]);
 
 
 
-    ESP_ERROR_CHECK(mcpwm_capture_timer_enable(cap_timer));
-    ESP_ERROR_CHECK(mcpwm_capture_timer_start(cap_timer));
+    mcpwm_capture_timer_enable(cap_timer);
+    mcpwm_capture_timer_start(cap_timer);
 }
