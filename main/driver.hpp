@@ -5,8 +5,8 @@
 #include <driver/mcpwm_prelude.h>
 
 
-#define MOTOR_MIN_PULSEWIDTH_US 500  // Minimum pulse width in microsecond
-#define MOTOR_MAX_PULSEWIDTH_US 2500
+#define MOTOR_MIN_PULSEWIDTH_US 10  // Minimum pulse width in microsecond
+#define MOTOR_MAX_PULSEWIDTH_US 19000
 #define MOTOR_TIMEBASE_RESOLUTION_HZ 1 * 1000 * 1000  // 1MHz, 1us per tick
 #define MOTOR_TIMEBASE_PERIOD        20000
 

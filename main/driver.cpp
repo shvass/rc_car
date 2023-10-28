@@ -72,8 +72,8 @@ driver::driver(int left, int right) {
 
 
 void driver::set(float left, float right){
-    if(left !=  -1) mcpwm_comparator_set_compare_value(lcmp, map(left));
-    if(right!=  -1) mcpwm_comparator_set_compare_value(rcmp, map(right));
+    if(left  >  0.0f && left  <= 1.0f) mcpwm_comparator_set_compare_value(lcmp, map(left));
+    if(right > 0.0f && right <= 1.0f) mcpwm_comparator_set_compare_value(rcmp, map(right));
 };
 
 
