@@ -1,29 +1,23 @@
 
 #include "reader.hpp"
 
-#define GRP_ID 1
+
 
 
 bool reader::isr_callback(mcpwm_cap_channel_handle_t cap_chan, const mcpwm_capture_event_data_t *edata, void *user_data)
 {
-    // TaskHandle_t task_to_notify = (TaskHandle_t)user_data;
-    // BaseType_t high_task _wakeup = pdFALSE;
 
     marker* mrk = (marker*) user_data;
     reader* rd = mrk->rd;
     int channel = mrk->channel;
 
 
-    //calculate the interval in the ISR,
-    //so that the interval will be always correct even when capture_queue is not handled in time and overflow.
+    // store the timestamp when pos edge is detected
     if (edata->cap_edge == MCPWM_CAP_EDGE_POS) {
-        // store the timestamp when pos edge is detected
         rd->p_buf[channel] = edata->cap_value;
     } else {
         uint32_t time = edata->cap_value;
         rd->chan[channel] = time - rd->p_buf[channel];
-        // notify the task to calculate the distance
-        // xTaskNotifyFromISR(task_to_notify, tof_ticks, eSetValueWithOverwrite, &high_task_wakeup);
     }
 
     return true;
