@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "driver.hpp"
 
-// timer configuration
+/// @brief timer configuration
 mcpwm_timer_config_t timer_config = {
     .group_id = 0,
     .clk_src = MCPWM_TIMER_CLK_SRC_DEFAULT,
@@ -25,7 +25,7 @@ mcpwm_timer_config_t timer_config = {
     .flags = {}
 };
 
-// operator config
+/// @brief operator config
 mcpwm_operator_config_t operator_config = {
     .group_id = 0, // operator must be in the same group to the timer
     .flags = {}
@@ -36,7 +36,10 @@ mcpwm_comparator_config_t comparator_config = {
     .flags = {1, 0, 0}
 };
 
+
 driver::driver(int left, int right) {
+
+    // common timer for both pwm drivers
     mcpwm_new_timer(&timer_config, &timer);
 
     mcpwm_new_operator(&operator_config, &lop);
@@ -54,34 +57,33 @@ driver::driver(int left, int right) {
         .flags = {}
     };
 
-    ESP_ERROR_CHECK(mcpwm_new_generator(lop, &generator_config, &lgen));
+    mcpwm_new_generator(lop, &generator_config, &lgen);
 
     generator_config.gen_gpio_num = right;
     mcpwm_new_generator(rop, &generator_config, &rgen);
 
 
 
+    // left comparator operations
     // go high on counter empty
     mcpwm_generator_set_action_on_timer_event(lgen,
-                                                              MCPWM_GEN_TIMER_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, MCPWM_TIMER_EVENT_EMPTY, MCPWM_GEN_ACTION_HIGH));
+            MCPWM_GEN_TIMER_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, MCPWM_TIMER_EVENT_EMPTY, MCPWM_GEN_ACTION_HIGH));
+    
     // go low on compare threshold
     mcpwm_generator_set_action_on_compare_event(lgen,
-                                                                MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, lcmp, MCPWM_GEN_ACTION_LOW));
+              MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, lcmp, MCPWM_GEN_ACTION_LOW));
 
 
-  // go high on counter empty
+    // right comparator operations
+    // go high on counter empty
     mcpwm_generator_set_action_on_timer_event(rgen,
-                                                              MCPWM_GEN_TIMER_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, MCPWM_TIMER_EVENT_EMPTY, MCPWM_GEN_ACTION_HIGH));
+            MCPWM_GEN_TIMER_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, MCPWM_TIMER_EVENT_EMPTY, MCPWM_GEN_ACTION_HIGH));
     // go low on compare threshold
     mcpwm_generator_set_action_on_compare_event(rgen,
-                                                                MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, rcmp, MCPWM_GEN_ACTION_LOW));
+              MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, rcmp, MCPWM_GEN_ACTION_LOW));
 
     mcpwm_timer_enable(timer);
     mcpwm_timer_start_stop(timer, MCPWM_TIMER_START_NO_STOP);
-    
-    // mcpwm_timer_enable(rtimer);
-    // mcpwm_timer_start_stop(rtimer, MCPWM_TIMER_START_NO_STOP);
-
 };
 
 
